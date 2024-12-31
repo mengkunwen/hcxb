@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>爱你 (๑•̀ㅂ•́)و✧</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    .child {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      color: #EA80B0;
+    }
+    h1, h2, h3, h4, h5 {
+      margin: 0;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="child">
+    <h1>๑‾ ꇴ ‾๑</h1>
+    <h2>你 在 胜 过 千 万 个 泛 泛 之 交</h2>
+    <h3>希望我的女孩一切都好</h3>
+    <h4>希望所有俗套的祝福都在她身上灵验</h4>
+    <h5>------阴晓萌 ♥</h5>
+  </div>
+
+  <canvas id="pinkboard"></canvas>
+
+  <script>
+    // Particle settings (slower speed, smoother effect)
+    const settings = {
+      particles: {
+        length: 500, // max particles
+        duration: 6, // increased particle life duration
+        velocity: 25, // slower particle velocity (reduced speed)
+        effect: -0.5, // less acceleration for smoother effect
+        size: 12 // slightly smaller particle size
+      }
+    };
+
+    // RequestAnimationFrame Polyfill
+    (function() {
+      const vendors = ['ms', 'moz', 'webkit', 'o'];
+      for (let i = 0; i < vendors.length; i++) {
+        if (window.requestAnimationFrame) break;
+        window.requestAnimationFrame = window[vendors[i] + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[i] + 'CancelAnimationFrame'] || window[vendors[i] + 'CancelRequestAnimationFrame'];
+      }
+      if (!window.requestAnimationFrame) window.requestAnimationFrame = callback => {
+        const currentTime = new Date().getTime();
+        const timeToCall = Math.max(0, 16 - (currentTime - lastTime));
+        const id = window.setTimeout(() => callback(currentTime + timeToCall), timeToCall);
+        lastTime = currentTime + timeToCall;
+        return id;
+      };
+      if (!window.cancelAnimationFrame) window.cancelAnimationFrame = clearTimeout;
+    })();
+
+    // Point class for 2D positions
+    class Point {
+      constructor(x = 0, y = 0) {
+        this.x = x;
+        this.y = y;
+      }
+      clone() {
+        return new Point(this.x, this.y);
+      }
+      length(value) {
+        if (value === undefined) return Math.sqrt(this.x ** 2 + this.y ** 2);
+        this.normalize();
+        this.x *= value;
+        this.y *= value;
+        return this;
+      }
+      normalize() {
+        const length = this.length();
+        this.x /= length;
+        this.y /= length;
+        return this;
+      }
+    }
+
+    // Particle class for animation
+    class Particle {
+      constructor() {
+        this.position = new Point();
+        this.velocity = new Point();
+        this.acceleration = new Point();
+        this.age = 0;
+        this.isExpanding = true; // Flag to indicate expanding or contracting
+      }
+      initialize(x, y, dx, dy) {
+        this.position.x = x;
+        this.position.y = y;
+        this.velocity.x = dx;
+        this.velocity.y = dy;
+        this.acceleration.x = dx * settings.particles.effect;
+        this.acceleration.y = dy * settings.particles.effect;
+        this.age = 0;
+        this.isExpanding = true; // Start by expanding
+      }
+      update(deltaTime) {
+        const maxSize = settings.particles.size;
+        const minSize = 0; // Particle fully contracted
+        const lifeCycleProgress = this.age / settings.particles.duration;
+
+        if (lifeCycleProgress >= 1) {
+          this.age = 0; // Reset age after full expansion
+          this.isExpanding = !this.isExpanding; // Switch between expanding and contracting
+        }
+
+        const expansionFactor = this.isExpanding
+          ? Math.sin(lifeCycleProgress * Math.PI) // Expansion phase: smooth transition
+          : Math.cos(lifeCycleProgress * Math.PI); // Contraction phase: smooth transition
+
+        const sizeFactor = (expansionFactor * (maxSize - minSize)) + minSize;
+
+        // Update position
+        this.position.x += this.velocity.x * deltaTime;
+        this.position.y += this.velocity.y * deltaTime;
+
+        // Update velocity
+        this.velocity.x += this.acceleration.x * deltaTime;
+        this.velocity.y += this.acceleration.y * deltaTime;
+
+        // Update age
+        this.age += deltaTime;
+        return sizeFactor;
+      }
+      draw(context, image, size) {
+        function ease(t) {
+          return (-t) * t * t + 1;
+        }
+        // Change opacity based on whether the particle is expanding or contracting
+        const opacityFactor = this.isExpanding
+          ? 1 // Full opacity when expanding
+          : 0.5 + (1 - this.age / settings.particles.duration) * 0.5; // Fade during contraction
+
+        // Make the internal particles more transparent when contracting
+        if (this.age / settings.particles.duration < 0.5) {
+          context.globalAlpha = opacityFactor;
+        } else {
+          context.globalAlpha = 1; // External particles remain full opacity
+        }
+
+        context.drawImage(image, this.position.x - size / 2, this.position.y - size / 2, size, size);
+      }
+    }
+
+    // Particle Pool for managing particles
+    class ParticlePool {
+      constructor(length) {
+        this.particles = Array.from({ length }, () => new Particle());
+        this.firstFree = 0;
+        this.firstActive = 0;
+      }
+      add(x, y, dx, dy) {
+        const particle = this.particles[this.firstFree];
+        particle.initialize(x, y, dx, dy);
+        this.firstFree = (this.firstFree + 1) % this.particles.length;
+        if (this.firstFree === this.firstActive) this.firstActive = (this.firstActive + 1) % this.particles.length;
+      }
+      update(deltaTime) {
+        for (let i = this.firstActive; i < this.firstFree; i++) {
+          this.particles[i].update(deltaTime);
+        }
+        for (let i = 0; i < this.firstActive; i++) {
+          this.particles[i].update(deltaTime);
+        }
+      }
+      draw(context, image) {
+        for (let i = this.firstActive; i < this.firstFree; i++) {
+          const size = this.particles[i].update(0.016); // deltaTime as fixed value for simplicity
+          this.particles[i].draw(context, image, size);
+        }
+        for (let i = 0; i < this.firstActive; i++) {
+          const size = this.particles[i].update(0.016);
+          this.particles[i].draw(context, image, size);
+        }
+      }
+    }
+
+    // Setup canvas and particle animation
+    function canvas() {
+      const canvas = document.getElementById('pinkboard');
+      const context = canvas.getContext('2d');
+      const particles = new ParticlePool(settings.particles.length);
+      let lastTime;
+      const particleRate = settings.particles.length / settings.particles.duration;
+
+      // Simplified heart shape function
+      function pointOnHeart(t) {
+        return new Point(
+          160 * Math.pow(Math.sin(t), 3),
+          130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
+        );
+      }
+
+      // Create heart shape particle image (optimized)
+      const image = (function() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = settings.particles.size;
+        canvas.height = settings.particles.size;
+        context.beginPath();
+        let t = -Math.PI;
+        let point = pointOnHeart(t);
+        context.moveTo(point.x + canvas.width / 2, point.y + canvas.height / 2);
+        while (t < Math.PI) {
+          t += 0.01;
+          point = pointOnHeart(t);
+          context.lineTo(point.x + canvas.width / 2, point.y + canvas.height / 2);
+        }
+        context.closePath();
+        context.fillStyle = '#ea80b0';
+        context.fill();
+        const img = new Image();
+        img.src = canvas.toDataURL();
+        return img;
+      })();
+
+      // Main render loop
+      function render() {
+        requestAnimationFrame(render);
+        const newTime = new Date().getTime() / 1000;
+        const deltaTime = newTime - (lastTime || newTime);
+        lastTime = newTime;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const amount = particleRate * deltaTime;
+
+        for (let i = 0; i < amount; i++) {
+          const pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+          const dir = pos.clone().length(settings.particles.velocity);
+          particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
+        }
+
+        particles.update(deltaTime);
+        particles.draw(context, image);
+      }
+
+      // Resize handling
+      function onResize() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+      }
+      window.onresize = onResize;
+
+      // Start the animation
+      setTimeout(function() {
+        onResize();
+        render();
+      }, 10);
+    }
+
+    window.onload = canvas;
+  </script>
+</body>
+</html>
