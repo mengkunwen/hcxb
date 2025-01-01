@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined Page</title>
+    <style>
+    /* 基础样式 */
+body {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* 深色模式样式 */
+body.dark-mode {
+    color: #f4f4f4;
+    background: #1e1e1e;
+}
+
+header, nav, section, footer {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    transition: background-color 0.3s;
+}
+
+body.dark-mode header, body.dark-mode nav, body.dark-mode section, body.dark-mode footer {
+    background: #1e1e1e;
+    color: #f4f4f4;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    background: #333;
+    text-align: center;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 10px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    padding: 10px 15px;
+    display: inline-block;
+}
+
+nav ul li a:hover {
+    background: #555;
+}
+
+section {
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+body.dark-mode section {
+    box-shadow: 0 2px 5px rgba(255,255,255,0.2);
+}
+
+.post {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+body.dark-mode .post {
+    border: 1px solid #444;
+}
+
+.post a {
+    text-decoration: none;
+    color: #333;
+    background: #f4f4f4;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+body.dark-mode .post a {
+    color: #ccc;
+    background: #444;
+}
+
+button {
+    padding: 10px 15px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #555;
+}
+
+#backToTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+    display: none;
+}
+
+#backToTop:hover {
+    background: #555;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input, textarea {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+body.dark-mode input, body.dark-mode textarea {
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #f4f4f4;
+}
+
+footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    nav ul {
+        text-align: left;
+        padding: 0;
+    }
+    nav ul li {
+        display: block;
+        margin-bottom: 10px;
+    }
+    nav ul li a {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+    </style>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的博客</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light-mode">
+    <header>
+        <h1>欢迎来到我的博客</h1>
+        <button id="themeToggle">切换主题</button>
+        <button id="backToTop" style="display: none;">回到顶部</button>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#about">关于我</a></li>
+            <li><a href="#latestPosts">最新文章</a></li>
+            <li><a href="#contact">联系方式</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="about">
+            <h2>关于我</h2>
+            <p>我是一名热爱编程和设计的开发者。</p>
+            <button id="moreAbout">了解更多</button>
+            <div id="extraInfo" style="display: none;">
+                <p>我喜欢探索新技术，分享知识，以及在博客上记录我的学习历程。</p>
+                <p>欢迎浏览我的博客，一起交流和成长。</p>
+            </div>
+        </section>
+        <section id="latestPosts">
+            <h2>最新文章</h2>
+            <article class="post">
+                <h3>文章标题1</h3>
+                <p>文章摘要1...</p>
+                <a href="#">阅读更多</a>
+            </article>
+            <article class="post">
+                <h3>文章标题2</h3>
+                <p>文章摘要2...</p>
+                <a href="#">阅读更多</a>
+            </article>
+            <!-- 更多文章 -->
+        </section>
+        <section id="contact">
+            <h2>联系方式</h2>
+            <p>想要联系我？给我发邮件吧：example@example.com</p>
+            <form id="contactForm">
+                <input type="text" placeholder="您的姓名" required>
+                <input type="email" placeholder="您的邮箱" required>
+                <textarea placeholder="您的信息" required></textarea>
+                <button type="submit">发送信息</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>版权所有 &copy; 2024</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
+    <script>
+    // 导航链接平滑滚动效果
+document.querySelectorAll('nav ul li a').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+
+// 点击了解更多按钮切换显示和隐藏介绍内容
+document.getElementById('moreAbout').addEventListener('click', function () {
+    const extraInfo = document.getElementById('extraInfo');
+    extraInfo.style.display = extraInfo.style.display === 'none' ? 'block' : 'none';
+});
+
+// 回到顶部按钮功能
+document.getElementById('backToTop').addEventListener('click', function () {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// 监听页面滚动，显示/隐藏回到顶部按钮
+window.addEventListener('scroll', function () {
+    const backToTop = document.getElementById('backToTop');
+    backToTop.style.display = window.scrollY > 100 ? 'block' : 'none';
+});
+
+// 表单提交事件
+document.getElementById('contactForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    alert('感谢您的信息，我们会尽快与您联系！');
+    this.reset(); // 重置表单
+});
+
+// 切换主题模式
+document.getElementById('themeToggle').addEventListener('click', function () {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark-mode' : 'light-mode');
+});
+
+// 页面加载时应用保存的主题
+window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.body.classList.add(savedTheme);
+    } else {
+        document.body.classList.add('light-mode');
+    }
+});
+    </script>
+</body>
+</html>
